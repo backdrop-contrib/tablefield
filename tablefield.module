@@ -881,7 +881,7 @@ function tablefield_rationalize_table($tablefield) {
     foreach ($tablefield as $key => $value) {
       if (preg_match('/cell_(.*)_(.*)/', $key, $cell)) {
         // $cell[1] is row count $cell[2] is col count.
-        if ((int) $cell[1] < $count_rows && (int) $cell['2'] < $count_cols) {
+        if ((int) $cell[1] < $count_rows && (int) $cell[2] < $count_cols) {
           $tabledata[$cell[1]][$cell[2]] = $value;
         }
       }
