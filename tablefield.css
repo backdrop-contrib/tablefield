@@ -1,22 +1,19 @@
 
-.field-widget-tablefield .form-tablefield .form-text,
-.form-tablefield .form-text {
-  width: auto;
-  margin: 1px 1px 1px 1px;
-  padding: 1px 1px 1px 1px;
-}
 .field-widget-tablefield .form-tablefield table,
 .form-tablefield table {
   width: 100%;
 }
-.form-tablefield .form-type-textfield {
-  width: 98%;
-}
 .field-widget-tablefield .form-tablefield table tr td,
 .form-tablefield table tr td {
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
+  margin: 0;
+  padding: 2px 0;
   text-align: center;
+}
+.field-widget-tablefield .draggable a.tabledrag-handle {
+  margin-left: 0;
+}
+.field-widget-tablefield .form-type-textfield {
+  overflow: hidden;
 }
 .form-tablefield input.tablefield-row-0 {
   font-weight: bold;
@@ -26,6 +23,13 @@
 }
 .form-tablefield input {
   background-color: transparent;
+  width: 100%;
+}
+.field-widget-tablefield .form-tablefield .form-text,
+.form-tablefield .form-text {
+  width: auto;
+  margin: 1px;
+  padding: 2px;
 }
 .form-tablefield table,
 .form-tablefield fieldset {
