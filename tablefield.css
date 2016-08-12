@@ -22,7 +22,7 @@
   font-weight: bold;
 }
 .form-tablefield input {
-  background-color: transparent !important;
+  background-color: transparent;
 }
 .form-tablefield table,
 .form-tablefield fieldset {
