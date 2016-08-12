@@ -1,8 +1,7 @@
+type = module
 name = TableField
 description = Defines a generic tabular data field.
-core = 7.x
+backdrop = 1.x
 package = Fields
 dependencies[] = field
-files[] = tablefield.css
-files[] = tablefield.module
-files[] = tablefield.install
+

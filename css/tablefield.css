@@ -11,6 +11,7 @@
 }
 .field-widget-tablefield .draggable a.tabledrag-handle {
   margin-left: 0;
+  margin-top: .85em;
 }
 .field-widget-tablefield .form-type-textfield {
   overflow: hidden;
@@ -28,8 +29,8 @@
 .field-widget-tablefield .form-tablefield .form-text,
 .form-tablefield .form-text {
   width: auto;
-  margin: 1px;
-  padding: 2px;
+  margin: 5px 0;
+  padding: 5px;
 }
 .form-tablefield table,
 .form-tablefield fieldset {

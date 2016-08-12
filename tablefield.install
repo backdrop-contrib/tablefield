@@ -1,32 +1,8 @@
 <?php
-
 /**
  * @file
  * Installation options for TableField.
  */
-
-/**
- * Implements hook_enable().
- *
- * Notify content module when this module is enabled.
- */
-function tablefield_enable() {
-}
-
-/**
- * Implements hook_disable().
- *
- * Notify content module when this module is disabled.
- */
-function tablefield_disable() {
-}
-
-/**
- * Implements hook_uninstall().
- */
-function tablefield_uninstall() {
-  variable_del('tablefield_csv_separator');
-}
 
 /**
  * Implements hook_update_dependencies().
@@ -88,38 +64,13 @@ function tablefield_repair_schema() {
   }
 }
 
+function tablefield_update_last_removed() {
+  return 7002;
+}
+
 /**
  * Update schema to handle machine names of input filter formats.
  */
-function tablefield_update_7000() {
-  tablefield_repair_schema();
-}
-
-/**
- * Fix columns created by versions prior to beta1.
- */
-function tablefield_update_7001() {
-  tablefield_repair_schema();
-}
-
-/**
- * Change default field_formatter name from 'default' to 'tablefield_default'.
- */
-function tablefield_update_7002() {
-  $fields = field_read_fields(array('type' => 'tablefield'));
-  // Tablefield enabled but no tablefields.
-  if (!is_array($fields) || !count($fields)) {
-    return;
-  }
-
-  $instances = field_read_instances(array('field_id' => array_keys($fields)));
-
-  foreach ($instances as $instance) {
-    foreach ($instance['display'] as $d => $display) {
-      if ($display['type'] == 'default') {
-        $instance['display'][$d]['type'] = 'tablefield_default';
-        field_update_instance($instance);
-      }
-    }
-  }
+function tablefield_update_1000() {
+  variable_del('tablefield_csv_separator');
 }
