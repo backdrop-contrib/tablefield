@@ -20,44 +20,7 @@ function tablefield_menu() {
       'title' => 'Export Table Data',
       'access arguments' => array('export tablefield'),
     ),
-    'admin/config/content/tablefield' => array(
-      'page callback' => 'backdrop_get_form',
-      'page arguments' => array('tablefield_admin_settings_form'),
-      'title' => 'tablefield',
-      'description' => 'Global configuration for the tablefield module',
-      'access arguments' => array('configure tablefield'),
-    ),
   );
-}
-
-/**
- * Menu callback to prepare administration configuration form.
- */
-function tablefield_admin_settings_form() {
-  $form = array();
-
-  $form['tablefield_csv_separator'] = array(
-    '#type' => 'textfield',
-    '#title' => t('CSV separator'),
-    '#size' => 1,
-    '#maxlength' => 1,
-    '#default_value' => variable_get('tablefield_csv_separator', ','),
-    '#description' => t('Select the separator for the CSV import/export.'),
-  );
-
-  return system_settings_form($form);
-}
-
-/**
- * Form validation handler for tablefield_admin_settings_form().
- *
- * @see tablefield_admin_settings_form()
- */
-function tablefield_admin_settings_form_validate($form, &$form_state) {
-  if (backdrop_strlen($form_state['values']['tablefield_csv_separator']) !== 1) {
-    $message = t('Separator must be one character only!');
-    form_set_error('tablefield_csv_separator', $message);
-  }
 }
 
 /**
@@ -70,9 +33,6 @@ function tablefield_permission() {
     ),
     'rebuild tablefield' => array(
       'title' => t('Rebuild any tablefield'),
-    ),
-    'configure tablefield' => array(
-      'title' => t('Allow changes in the global tablefield module configuration'),
     ),
   );
 }
@@ -107,7 +67,7 @@ function tablefield_export_csv($entity_type, $entity_id, $field_name, $langcode,
 
     // Save the data as a CSV file.
     foreach ($table as $row) {
-      fputcsv($fp, $row, variable_get('tablefield_csv_separator', ','));
+      fputcsv($fp, $row, ',');
     }
 
     fclose($fp);
@@ -907,7 +867,7 @@ function tablefield_import_csv($form, &$form_state, $langcode, $file_form_field_
       $max_col_count = 0;
       $row_count = 0;
       $imported_tablefield = array();
-      while (($csv = fgetcsv($handle, 0, variable_get('tablefield_csv_separator', ','))) !== FALSE) {
+      while (($csv = fgetcsv($handle, 0, ',')) !== FALSE) {
         $col_count = count($csv);
         foreach ($csv as $col_id => $col) {
           $imported_tablefield['cell_' . $row_count . '_' . $col_id] = $col;
