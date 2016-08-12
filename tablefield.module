@@ -490,6 +490,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
   $ajax_wrapper_id = "$id-wrapper";
   $rebuild_id = "$id-rebuild";
   $import_id = "$id-import";
+  $pasted_id = "$id-pasted";
 
   // Default table size.
   $default_size['count_cols'] = isset($instance['default_value'][0]['tablefield']['rebuild']['count_cols']) ? $instance['default_value'][0]['tablefield']['rebuild']['count_cols'] : 5;
@@ -511,6 +512,15 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       // Importing CSV data.
       tablefield_import_csv($form, $form_state, $langcode, $import_id, $tablefield_parents);
       $default_value = drupal_array_get_nested_value($form_state['input'], $tablefield_parents);
+    }
+    elseif ($form_state['triggering_element']['#name'] == $pasted_id) {
+      // Importing pasted data
+      tablefield_import_pasted($form, $form_state, $langcode, $pasted_id, $tablefield_parents);
+      $default_value = drupal_array_get_nested_value($form_state['input'], $tablefield_parents);
+      if (empty($default_value['rebuild'])) {
+        $default_value['rebuild'] = $default_size;
+      }
+      $default_value = tablefield_rationalize_table($default_value);
     }
     else {
       // The triggering element is neither a rebuild nor an import
@@ -698,7 +708,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
   $element['tablefield']['import'] = array(
     '#type' => 'fieldset',
     '#tree' => TRUE,
-    '#title' => t('Import from CSV'),
+    '#title' => t('Upload CSV file'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -715,6 +725,55 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#submit' => array('tablefield_rebuild_form'),
     '#value' => t('Upload CSV'),
     '#name' => $import_id,
+    '#attributes' => array(
+      'class' => array('tablefield-rebuild'),
+    ),
+    '#ajax' => array(
+      'callback' => 'tablefield_rebuild_form_ajax',
+      'wrapper' => $ajax_wrapper_id,
+      'effect' => 'fade',
+    ),
+  );
+
+  // Allow user to paste data (e.g. from Excel)
+  $element['tablefield']['paste'] = array(
+    '#type' => 'fieldset',
+    '#tree' => TRUE,
+    '#title' => t('Copy & Paste (e.g. from Excel)'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $delimiters = array(
+    'TAB' => 'TAB',
+    ',' => 'Comma ,',
+    ';' => 'Semicolon ;',
+    '|' => 'Pipe |',
+    '+' => 'Plus +',
+    ':' => 'Colon :',
+  );
+  $element['tablefield']['paste']['paste_delimiter'] = array(
+    '#type' => 'select',
+    '#tree' => TRUE,
+    '#title' => t('Column separator'),
+    '#name' => 'delimiter[' . $pasted_id . ']',
+    '#options' => $delimiters,
+    '#description' => t('Data copied from Excel will use TAB.', array('!delimiter' => $delimiters)),
+  );
+  $element['tablefield']['paste']['data'] = array(
+    '#type' => 'textarea',
+    '#tree' => TRUE,
+    '#name' => 'data[' . $pasted_id . ']',
+    '#title' => t('Table data'),
+  );
+
+  $element['tablefield']['paste']['paste_import'] = array(
+    '#type' => 'button',
+    '#validate' => array(),
+    '#limit_validation_errors' => array(),
+    '#executes_submit_callback' => TRUE,
+    '#submit' => array('tablefield_rebuild_form'),
+    '#value' => t('Import Data'),
+    '#name' => $pasted_id,
     '#attributes' => array(
       'class' => array('tablefield-rebuild'),
     ),
@@ -802,6 +861,56 @@ function tablefield_import_csv($form, &$form_state, $langcode, $file_form_field_
 }
 
 /**
+ * Helper function to import pasted data
+ * @param array $form
+ * @param array $form_state
+ * @param string $langcode
+ * @param string $file_form_field_name
+ * @param array $tablefield_parents
+ */
+function tablefield_import_pasted($form, &$form_state, $langcode, $pasted_form_field_name, $tablefield_parents) {
+
+  $data = $form_state['input']['data'][$pasted_form_field_name];
+  if (!empty($data)) {
+    tablefield_delete_table_values(drupal_array_get_nested_value($form_state['values'], $tablefield_parents));
+    tablefield_delete_table_values(drupal_array_get_nested_value($form_state['input'], $tablefield_parents));
+
+    // Get the rows:
+    $rows = explode(PHP_EOL, $data);
+    $col_delimiter = $form_state['input']['delimiter'][$pasted_form_field_name];
+    if ($col_delimiter == 'TAB') {
+      $col_delimiter = "\t";
+    }
+
+    // Populate table values:
+    $max_col_count = 0;
+    $row_count = 0;
+    $imported_tablefield = array();
+    foreach ($rows as $row_id => $row) {
+      // Explode the current row into columns:
+      $cols = explode($col_delimiter, $row);
+      $col_count = count($cols);
+      if ($col_count > 0) {
+        foreach ($cols as $col_id => $col) {
+          $imported_tablefield['cell_' . $row_count . '_' . $col_id] = $col;
+        }
+        $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
+        $row_count++;
+      }
+    }
+
+    $imported_tablefield['rebuild'] = array('count_cols' => $max_col_count, 'count_rows' => $row_count);
+    drupal_array_set_nested_value($form_state['values'], $tablefield_parents, $imported_tablefield);
+    drupal_array_set_nested_value($form_state['input'], $tablefield_parents, $imported_tablefield);
+
+    drupal_set_message(t('Successfully imported pasted data.'));
+  }
+  else {
+    drupal_set_message(t('There was a problem importing pasted.'));
+  }
+}
+
+/**
  * Helper function to remove all values in a particular table.
  *
  * @param array $tablefield
@@ -877,6 +986,7 @@ function tablefield_rationalize_table($tablefield) {
     unset($tablefield['caption']);
     unset($tablefield['rebuild']);
     unset($tablefield['import']);
+    unset($tablefield['paste']);
 
     foreach ($tablefield as $key => $value) {
       if (preg_match('/cell_(.*)_(.*)/', $key, $cell)) {
