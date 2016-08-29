@@ -2,11 +2,6 @@
 /**
  * @file
  * Provides a set of fields that can be used to store tabular data with a node.
- *
- * The implementation uses a custom CCK widget.
- *
- * @todo Should we create a helper function for sanitization?
- *   - We should see if it makes sense to sanitize on load as well as view.
  */
 
 /**
@@ -410,7 +405,6 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
       // Check for an empty header, if so we don't want to theme it.
       $noheader = TRUE;
       if (empty($field['settings']['hide_headers'])) {
-
         $header_data = array_shift($tabledata);
         foreach ($header_data as $cell) {
           if (strlen($cell['data']) > 0) {
@@ -563,7 +557,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
   }
   else {
     if (!empty($field['settings']['hide_headers'])) {
-      $help_text = t('Table headers will not appear.');
+      $help_text = t('This table will not have a header.');
     }
     else {
       $help_text = t('The first row will appear as the table header. Leave the first row blank if you do not need a header.');
@@ -596,7 +590,10 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
 
   $arg0 = arg(0);
   if ($arg0 == 'admin') {
-    $element['tablefield']['#description'] = t('This form defines the table field defaults, but the number of rows/columns and content can be overridden on a per-node basis. The first row will appear as the table header. Leave the first row blank if you do not need a header.');
+    $element['tablefield']['#description'] = t('This form defines the table field defaults, but the number of rows/columns and content can be overridden.');
+    if (!$field['settings']['hide_headers']) {
+      $element['tablefield']['#description'] .=  ' ' . t('The first row will appear as the table header. Leave the first row blank if you do not need a header.');
+    }
   }
 
   // Render the form table.
