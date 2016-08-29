@@ -285,8 +285,8 @@ function tablefield_field_is_empty($item, $field) {
   }
 
   // Remove the preference fields to see if the table cells are all empty.
-  unset($item['tablefield']['rebuild']);
   unset($item['tablefield']['caption']);
+  unset($item['tablefield']['rebuild']);
   unset($item['tablefield']['import']);
   if (!empty($item['tablefield'])) {
     foreach ($item['tablefield'] as $cell) {
@@ -362,7 +362,7 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
   foreach ($items as $delta => $table) {
     // Check for table caption.
     $raw = unserialize($table['value']);
-    $caption = isset($raw['caption'])? $raw['caption']: '';
+    $caption = isset($raw['caption']) ? check_plain($raw['caption']) : '';
 
     // Rationalize the stored data.
     if (!empty($table['tabledata'])) {
@@ -426,6 +426,7 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
           'id' => 'tablefield-' . $delta,
           'class' => array('tablefield'),
         ),
+        '#caption' => $caption,
         '#header' => $header,
         '#rows' => $tabledata,
         '#delta' => $delta,
@@ -666,6 +667,20 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
   );
   backdrop_add_tabledrag('tablefield-editor', 'order', 'sibling', 'tablefield-weight');
 
+  // Provide caption field to describe the data contained in the table.
+  $element['tablefield']['caption'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Table description'),
+    '#default_value' => '',
+    '#description' => t('This brief caption will be associated with the table and will help Assitive Technology, like screen readers, better describe the content within.'),
+  );
+  if (isset($items[$delta]['value'])) {
+    $raw = unserialize($items[$delta]['value']);
+    if (isset($raw['caption'])) {
+      $element['tablefield']['caption']['#default_value'] = check_plain($raw['caption']);
+    }
+  }
+
   // If the user doesn't have rebuild perms, we pass along the data as a value.
   // Otherwise we provide form elements to specify the size and ajax rebuild.
   if (isset($field['settings']['restrict_rebuild']) && $field['settings']['restrict_rebuild'] && !user_access('rebuild tablefield')) {
@@ -807,21 +822,6 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       'wrapper' => $ajax_wrapper_id,
       'effect' => 'fade',
     ),
-  );
-
-  // Provide caption field to describe the data contained in the table.
-  $caption = '';
-  if (isset($items[$delta]['value'])) {
-    $raw = unserialize($items[$delta]['value']);
-    if (isset($raw['caption'])) {
-      $caption = $raw['caption'];
-    }
-  }
-  $element['tablefield']['caption'] = array(
-    '#title' => t('Table description'),
-    '#description' => t('This brief caption will be associated with the table and will help Assitive Technology, like screen readers, better describe the content within.'),
-    '#type' => 'textfield',
-    '#default_value' => isset($caption) ? $caption : ''
   );
 
   // Allow the user to select input filters.
@@ -1034,17 +1034,16 @@ function tablefield_theme() {
     'tablefield_view' => array(
       'variables' => array(
         'attributes' => array(),
+        'caption' => NULL,
         'header' => NULL,
         'rows' => NULL,
-        'delta' => NULL,
         'export' => NULL,
+        'delta' => NULL,
         'entity_type' => NULL,
         'entity_id' => NULL,
         'field_name' => NULL,
         'langcode' => NULL,
-        'caption' => NULL,
         'formatter' => NULL,
-        'attributes' => array(),
       ),
     ),
   );
