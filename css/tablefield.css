@@ -9,6 +9,11 @@
   padding: 2px 0;
   text-align: center;
 }
+.form-tablefield table tr td.tablefield-row-count {
+  color: #cccccc;
+  max-width: 30px;
+  vertical-align: middle;
+}
 .field-widget-tablefield .draggable a.tabledrag-handle {
   margin-left: 0;
   margin-top: .85em;

@@ -658,7 +658,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     );
 
     $element['tablefield']['c_break' . $i] = array(
-      '#markup' => '</tr>',
+      '#markup' => '<td class="tablefield-row-count">' . ($i+1) . '</td></tr>',
     );
   }
   $element['tablefield']['t_break' . $i] = array(
