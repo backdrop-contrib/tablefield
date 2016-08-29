@@ -36,6 +36,7 @@ Credits
 
 - Ported to Backdrop CMS by Jen Lampton (https://github.com/jenlampton).
 - Originally written for Drupal by Kevin Hankens (http://www.kevinhankens.com).
+- Maintained for Drupal by vitalie (https://www.drupal.org/u/vitalie).
 
 License
 -------
