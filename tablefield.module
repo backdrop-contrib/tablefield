@@ -208,7 +208,7 @@ function tablefield_field_presave($entity_type, $entity, $field, $instance, $lan
           }
         }
         // Sort!
-        uasort($tablified_data, 'backdrop_sort_weight');
+        backdrop_sort($tablified_data, array('weight'));
 
         // Put the data in the desired order before saving.
         $row_counter = $col_counter = 0;
@@ -517,7 +517,6 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       if (empty($default_value['rebuild'])) {
         $default_value['rebuild'] = $default_size;
       }
-      $default_value = tablefield_rationalize_table($default_value);
     }
     else {
       // The triggering element is neither a rebuild nor an import
@@ -890,31 +889,37 @@ function tablefield_import_csv($form, &$form_state, $langcode, $file_form_field_
 }
 
 /**
- * Helper function to import pasted data
+ * Helper function to import copy/pasted data.
+ *
  * @param array $form
+ *   The form structure.
  * @param array $form_state
+ *   The current state of the form.
  * @param string $langcode
+ *   The language associated with the form items.
  * @param string $file_form_field_name
+ *   The key of the upload form element in the form array.
  * @param array $tablefield_parents
+ *   The parents of the tablefield element.
  */
 function tablefield_import_pasted($form, &$form_state, $langcode, $pasted_form_field_name, $tablefield_parents) {
-
   $data = $form_state['input']['data'][$pasted_form_field_name];
   if (!empty($data)) {
+    // Empty the current table.
     tablefield_delete_table_values(backdrop_array_get_nested_value($form_state['values'], $tablefield_parents));
     tablefield_delete_table_values(backdrop_array_get_nested_value($form_state['input'], $tablefield_parents));
 
-    // Get the rows:
-    $rows = explode(PHP_EOL, $data);
+    // Get the delimiter.
     $col_delimiter = $form_state['input']['delimiter'][$pasted_form_field_name];
     if ($col_delimiter == 'TAB') {
       $col_delimiter = "\t";
     }
 
-    // Populate table values:
+    // Populate table with pasted values.
     $max_col_count = 0;
     $row_count = 0;
     $imported_tablefield = array();
+    $rows = explode(PHP_EOL, $data);
     foreach ($rows as $row_id => $row) {
       // Explode the current row into columns:
       $cols = explode($col_delimiter, $row);
@@ -928,6 +933,7 @@ function tablefield_import_pasted($form, &$form_state, $langcode, $pasted_form_f
       }
     }
 
+    // Rebuild the table if necessary, and save.
     $imported_tablefield['rebuild'] = array('count_cols' => $max_col_count, 'count_rows' => $row_count);
     backdrop_array_set_nested_value($form_state['values'], $tablefield_parents, $imported_tablefield);
     backdrop_array_set_nested_value($form_state['input'], $tablefield_parents, $imported_tablefield);
@@ -935,7 +941,7 @@ function tablefield_import_pasted($form, &$form_state, $langcode, $pasted_form_f
     backdrop_set_message(t('Successfully imported pasted data.'));
   }
   else {
-    backdrop_set_message(t('There was a problem importing pasted.'));
+    backdrop_set_message(t('There was a problem importing pasted data.'));
   }
 }
 
