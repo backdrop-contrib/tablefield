@@ -1,5 +1,5 @@
-The Name of My Project
-======================
+TableField
+==========
 
 This module provides a simple, generic form/widget to input tabular data. The
 form allows the user to select the number or rows/columns in the table, then
