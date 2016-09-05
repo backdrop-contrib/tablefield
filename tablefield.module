@@ -427,7 +427,7 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
         '#theme' => 'tablefield_view',
         '#attributes' => array(
           'id' => 'tablefield-' . $delta,
-          'class' => array('tablefield'),
+          'class' => array('tablefield', 'tablefield-' . $delta),
         ),
         '#caption' => $caption,
         '#header' => $header,
@@ -985,7 +985,7 @@ function tablefield_rebuild_form_ajax($form, $form_state) {
 
   // We don't want to re-send the format/_weight options.
   unset($rebuild['format']);
-  //unset($rebuild['_weight']);
+  unset($rebuild['_weight']);
 
   // We need to avoid sending headers or the multipart form
   // will make it fail. So, we need to explicitly define the
