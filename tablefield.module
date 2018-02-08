@@ -367,26 +367,46 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
     $raw = unserialize($table['value']);
     $caption = isset($raw['caption']) ? check_plain($raw['caption']) : '';
 
+    $not_empty = array();
+    $data_not_empty = FALSE;
+    foreach ($table['tabledata'] as $key => $row) {
+      if (!empty(array_filter($row))) {
+        $not_empty[] = TRUE;
+      }
+    }
+    if (in_array(TRUE, $not_empty)) {
+      $data_not_empty = TRUE;
+    }
+
+    $not_empty = array();
+    $value_not_empty = FALSE;
+    foreach ($table['value'] as $key => $row) {
+      if (!empty(array_filter($row))) {
+        $not_empty[] = TRUE;
+      }
+    }
+    if (in_array(TRUE, $not_empty)) {
+      $value_not_empty = TRUE;
+    }
+
     // Rationalize the stored data.
-    if (!empty($table['tabledata'])) {
+    if (!empty($table['tabledata']) && $data_not_empty) {
       $tabledata = $table['tabledata'];
     }
-    elseif (!empty($table['value'])) {
+    elseif (!empty($table['value']) && $value_not_empty) {
       $tabledata = tablefield_rationalize_table(unserialize($table['value']));
     }
 
     // Run the table through input filters.
     if (isset($tabledata)) {
+      if (!empty($settings['trim_trailing_rows'])) {
+        $tabledata = tablefield_rtrim_rows($tabledata);
+      }
+      if (!empty($settings['trim_trailing_cols'])) {
+        $tabledata = tablefield_rtrim_cols($tabledata);
+      }
+
       if (!empty($tabledata)) {
-
-        if (!empty($settings['trim_trailing_rows'])) {
-          $tabledata = tablefield_rtrim_rows($tabledata);
-        }
-
-        if (!empty($settings['trim_trailing_cols'])) {
-          $tabledata = tablefield_rtrim_cols($tabledata);
-        }
-
         foreach ($tabledata as $row_key => $row) {
           foreach ($row as $col_key => $cell) {
             if (!empty($table['format'])) {
@@ -427,7 +447,7 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
         '#theme' => 'tablefield_view',
         '#attributes' => array(
           'id' => 'tablefield-' . $delta,
-          'class' => array('tablefield', 'tablefield-' . $delta),
+          'class' => array('tablefield'),
         ),
         '#caption' => $caption,
         '#header' => $header,
@@ -985,7 +1005,7 @@ function tablefield_rebuild_form_ajax($form, $form_state) {
 
   // We don't want to re-send the format/_weight options.
   unset($rebuild['format']);
-  unset($rebuild['_weight']);
+  //unset($rebuild['_weight']);
 
   // We need to avoid sending headers or the multipart form
   // will make it fail. So, we need to explicitly define the
@@ -1061,39 +1081,9 @@ function tablefield_theme() {
         'langcode' => NULL,
         'formatter' => NULL,
       ),
+      'file' => 'tablefield.theme.inc',
     ),
   );
-}
-
-/**
- * Theme function for table view.
- */
-function theme_tablefield_view($variables) {
-  // Apply scope property to headers for accessibility.
-  if (is_array($variables['header'])) {
-    foreach ($variables['header'] as &$header) {
-      $header['scope'] = 'col';
-    }
-  }
-
-  // If the user has access to the csv export option, display it now.
-  $export = '';
-  if ($variables['export'] && user_access('export tablefield')) {
-    $url = sprintf('tablefield/export/%s/%s/%s/%s/%s', $variables['entity_type'], $variables['entity_id'], $variables['field_name'], $variables['langcode'], $variables['delta']);
-    $export = '<div id="tablefield-export-link-' . $variables['delta'] . '" class="tablefield-export-link">' . l(t('Export Table Data'), $url) . '</div>';
-  }
-
-  return '<div id="tablefield-wrapper-' . $variables['delta'] . '" class="tablefield-wrapper">'
-    . theme('table__tablefield',
-      array(
-        'header' => $variables['header'],
-        'rows' => $variables['rows'],
-        'attributes' => $variables['attributes'],
-        'caption' => $variables['caption'],
-      )
-    )
-    . $export
-    . '</div>';
 }
 
 /**
