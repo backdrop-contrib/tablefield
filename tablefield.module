@@ -670,6 +670,21 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       }
     }
 
+    // Provide caption field to describe the data contained in the table.
+    $element['tablefield']['caption'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Table caption'),
+      '#default_value' => '',
+      '#size' => 120,
+      '#description' => t('This brief description will be associated with the table and will help Assitive Technology like screen readers better describe the content within.'),
+    );
+    if (isset($items[$delta]['value'])) {
+      $raw = unserialize($items[$delta]['value']);
+      if (isset($raw['caption'])) {
+        $element['tablefield']['caption']['#default_value'] = check_plain($raw['caption']);
+      }
+    }
+
     // Add an extra column for the weight.
     $row_weight_default = isset($default_value[$i]['weight']) ? $default_value[$i]['weight'] : ($i+1);
     $element['tablefield']['cell_' . $i . '_weight'] = array(
@@ -691,20 +706,6 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#markup' => '</table>',
   );
   backdrop_add_tabledrag('tablefield-editor', 'order', 'sibling', 'tablefield-weight');
-
-  // Provide caption field to describe the data contained in the table.
-  $element['tablefield']['caption'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Table description'),
-    '#default_value' => '',
-    '#description' => t('This brief caption will be associated with the table and will help Assitive Technology, like screen readers, better describe the content within.'),
-  );
-  if (isset($items[$delta]['value'])) {
-    $raw = unserialize($items[$delta]['value']);
-    if (isset($raw['caption'])) {
-      $element['tablefield']['caption']['#default_value'] = check_plain($raw['caption']);
-    }
-  }
 
   // If the user doesn't have rebuild perms, we pass along the data as a value.
   // Otherwise we provide form elements to specify the size and ajax rebuild.
