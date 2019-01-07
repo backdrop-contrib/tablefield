@@ -311,8 +311,8 @@ function tablefield_field_formatter_info() {
       'label' => t('Tabular View'),
       'field types' => array('tablefield'),
       'settings' => array(
-        'trim_trailing_rows' => FALSE,
-        'trim_trailing_cols' => FALSE,
+        'trim_trailing_rows' => TRUE,
+        'trim_trailing_cols' => TRUE,
       ),
     ),
   );
