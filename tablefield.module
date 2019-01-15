@@ -383,7 +383,8 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
     $value_not_empty = FALSE;
     if (!empty($table['value']) && is_array($table['value'])) {
       foreach ($table['value'] as $key => $row) {
-        if (!empty(array_filter($row))) {
+        $row = array_filter($row);
+        if (!empty($row)) {
           $not_empty[] = TRUE;
         }
       }
