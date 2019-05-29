@@ -54,13 +54,18 @@ function tablefield_export_csv($entity_type, $entity_id, $field_name, $langcode,
     return backdrop_not_found();
   }
 
+  // Load the entity.
+  $entities = entity_load($entity_type, array($entity_id));
+  if (empty($entities)) return MENU_NOT_FOUND;
+  $entity = reset($entities);
+
+  if (!entity_access('view', $entity_type, $entity) ||
+    !field_access('view', $field_info, $entity_type, $entity)) {
+    return MENU_ACCESS_DENIED;
+  }
+
   $filename = sprintf('%s_%s_%s_%s_%s.csv', $entity_type, $entity_id, $field_name, $langcode, $delta);
   $uri = 'temporary://' . $filename;
-
-  // Attempt to load the entity.
-  $ids = array($entity_id);
-  $entity = entity_load($entity_type, $ids);
-  $entity = array_pop($entity);
 
   // Ensure that the data is available and that we can load a
   // temporary file to stream the data.
