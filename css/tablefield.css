@@ -27,15 +27,11 @@
 .table-no-headers input.tablefield-row-0 {
   font-weight: normal!important;
 }
-.form-tablefield input {
-  background-color: transparent;
-  width: 100%;
-}
 .field-widget-tablefield .form-tablefield .form-text,
 .form-tablefield .form-text {
-  width: auto;
   margin: 5px 0;
   padding: 5px;
+  width: 100%;
 }
 .form-tablefield table,
 .form-tablefield fieldset {
