@@ -839,7 +839,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#title' => t('Column separator'),
     '#name' => 'delimiter[' . $pasted_id . ']',
     '#options' => $delimiters,
-    '#description' => t('Data copied from Excel will use TAB.', array('!delimiter' => $delimiters)),
+    '#description' => t('Data copied from Excel will use TAB.'),
   );
   $element['tablefield']['paste']['data'] = array(
     '#type' => 'textarea',
