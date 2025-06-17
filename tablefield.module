@@ -1122,7 +1122,10 @@ function tablefield_fill_locked_values($tablefield, $instance_default) {
     for ($i = 0; $i < $count_rows; $i++) {
       for ($ii = 0; $ii < $count_cols; $ii++) {
         if (!isset($tablefield["cell_${i}_${ii}"])) {
-          $tablefield["cell_${i}_${ii}"] = isset($instance_default["cell_${i}_${ii}"]) ? $instance_default["cell_${i}_${ii}"] : '';
+          $tablefield["cell_$i_$ii"] = '';
+          if (isset($instance_default["cell_$i_$ii"])) {
+            $tablefield["cell_$i_$ii"] = $instance_default["cell_$i_$ii"];
+          }
         }
       }
     }
